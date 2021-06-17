@@ -10,10 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Hashtable;
 
 /**
@@ -67,7 +64,25 @@ public class QrCodeUtil {
             }
         }
         // 插入图片
-        QrCodeUtil.insertImage(image, logoStream, needCompress);
+//        QrCodeUtil.insertImage(image, logoStream, needCompress);
+        //输出到输出流
+        ImageIO.write(image, formatName, qrCodeStream);
+    }
+    public static void createImage(String content,  OutputStream qrCodeStream,
+                                   String formatName) throws Exception {
+        Hashtable hints = new Hashtable();
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
+        hints.put(EncodeHintType.MARGIN, 1);
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, QRCODE_SIZE, QRCODE_SIZE, hints);
+        int width = bitMatrix.getWidth();
+        int height = bitMatrix.getHeight();
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+            }
+        }
         //输出到输出流
         ImageIO.write(image, formatName, qrCodeStream);
     }
@@ -132,7 +147,7 @@ public class QrCodeUtil {
     }
 
     public static void main(String[] args) throws Exception {
-       /* // 存放在二维码中的内容
+        // 存放在二维码中的内容
         String text = "我是小铭\r\n hello world";
         // 嵌入的logo文件流
         InputStream logoStream = new FileInputStream("D:\\bai.jpg");
@@ -140,10 +155,10 @@ public class QrCodeUtil {
         FileOutputStream qrCodeOutputStream = new FileOutputStream("D:\\bai_two.jpg");
         //生成二维码
         QrCodeUtil.createImage(text, logoStream, qrCodeOutputStream, true);
-        qrCodeOutputStream.flush();*/
+        qrCodeOutputStream.flush();
 
         // 解析二维码
-        InputStream qrCodeInputStream = new FileInputStream("D:\\bai.jpg");
+        InputStream qrCodeInputStream = new FileInputStream("D:\\bai_two.jpg");
         String str = "";
         try {
             str = QrCodeUtil.decode(qrCodeInputStream);
