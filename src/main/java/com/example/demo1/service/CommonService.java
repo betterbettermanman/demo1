@@ -1,26 +1,17 @@
 package com.example.demo1.service;
 
+import com.example.demo1.config.AppProperties;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.client.RestTemplate;
-import sun.misc.BASE64Encoder;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
 
 @Service
 public class CommonService {
-    @Value("${remoteUrl}")
-    private String url;
-    @Value("${robotId}")
-    private String robotId;
+    @Autowired
+    private AppProperties myAppProperties;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -59,8 +50,8 @@ public class CommonService {
     /**
      * 发送图片
      *
-     * @param wxId 目标人id或者目标群id
-     * @param picture  图片URL
+     * @param wxId    目标人id或者目标群id
+     * @param picture 图片URL
      */
     public void sendPicture(String wxId, String picture) {
         JSONObject requestMsg = createMsg();
@@ -73,7 +64,7 @@ public class CommonService {
     //创建消息体
     public JSONObject createMsg() {
         JSONObject msg = new JSONObject();
-        msg.put("robot_wxid", robotId);
+        msg.put("robot_wxid", myAppProperties.getRobotId());
         return msg;
     }
 
@@ -81,9 +72,7 @@ public class CommonService {
     public void sendInfo(JSONObject msg) {
         HttpHeaders headers = new HttpHeaders();
         HttpEntity formEntity = new HttpEntity(msg, headers);
-        restTemplate.postForEntity(url, formEntity, String.class);
+        restTemplate.postForEntity(myAppProperties.getRemoteUrl(), formEntity, String.class);
     }
-
-
 
 }

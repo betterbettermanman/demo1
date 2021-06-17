@@ -1,12 +1,12 @@
 package com.example.demo1.controller;
 
 import com.example.demo1.bean.ReceiverRequestMsg;
+import com.example.demo1.config.AppProperties;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.WeatherService;
 import com.example.demo1.util.QrCodeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,14 +18,14 @@ import java.io.IOException;
 
 @RestController
 public class ReceiverController {
-    @Value("${remoteUrl}")
-    private String url;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private CommonService commonService;
     @Autowired
     private WeatherService weatherService;
+    @Autowired
+    private AppProperties myAppProperties;
 
     /* 接受微信消息 */
     @PostMapping("receiver")
@@ -70,8 +70,6 @@ public class ReceiverController {
         }
     }
 
-    @Value("${pictureQrPath}")
-    private String pictureQrPath;
 
     /* 创建二维码图片 */
     public void createQr(String wxid, String msg) throws Exception {
@@ -81,12 +79,12 @@ public class ReceiverController {
             // 存放在二维码中的内容
             String text = msg;
             // 输出二维码的文件流
-            FileOutputStream qrCodeOutputStream = new FileOutputStream(pictureQrPath + File.separator+fileName);
+            FileOutputStream qrCodeOutputStream = new FileOutputStream(myAppProperties.getPictureQrPath() + File.separator + fileName);
             //生成二维码
             QrCodeUtil.createImage(text, qrCodeOutputStream, "JPG");
             qrCodeOutputStream.flush();
             //发送图片
-            commonService.sendPicture(wxid, "http://localhost:8091/getImage2?fileName=" + fileName);
+            commonService.sendPicture(wxid, myAppProperties.getPictureServer() + "/getImage2?fileName=" + fileName);
         }
     }
 

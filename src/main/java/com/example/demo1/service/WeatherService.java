@@ -1,8 +1,8 @@
 package com.example.demo1.service;
 
+import com.example.demo1.config.AppProperties;
 import com.example.demo1.dao.CityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,16 +17,14 @@ public class WeatherService {
     private CityMapper cityMapper;
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${weatherKey}")
-    private String weatherKey;
-    @Value("${weatherUrl}")
-    private String weatherUrl;
+    @Autowired
+    private AppProperties myAppProperties;
 
     /**
      * @param cityCode 城市编码
      */
     public String getWeather(int cityCode) {
-        String url = String.format("%s?key=%s&city=%s", weatherUrl, weatherKey, cityCode);
+        String url = String.format("%s?key=%s&city=%s", myAppProperties.getWeatherUrl(), myAppProperties.getWeatherKey(), cityCode);
         Map m = restTemplate.getForObject(url, Map.class);
         StringBuilder builder = new StringBuilder();
         if ("10000".equals(String.valueOf(m.get("infocode")))) {
