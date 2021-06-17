@@ -1,5 +1,6 @@
 package com.example.demo1.service;
 
+import com.example.demo1.dao.CityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import java.util.Map;
 
 @Service
 public class WeatherService {
+    @Autowired
+    private CityMapper cityMapper;
     @Autowired
     private RestTemplate restTemplate;
     @Value("${weatherKey}")
@@ -40,10 +43,25 @@ public class WeatherService {
                 builder.append("时间：").append(dateString).append("\n");
                 builder.append("天气：").append(weather.get("weather")).append("\n");
                 builder.append("温度：").append(weather.get("temperature")).append("\n");
-                builder.append("风向：").append(weather.get("winddirection")).append("/"+weather.get("windpower")).append("\n");
+                builder.append("风向：").append(weather.get("winddirection")).append("/" + weather.get("windpower")).append("\n");
             }
         }
         System.out.println(builder.toString());
         return builder.toString();
+    }
+
+    public String getWeather(String cityName) {
+        List<Map<String, Object>> codes = cityMapper.selectCode(cityName);
+        if (codes.size() == 1) {
+            return getWeather(Integer.parseInt(codes.get(0).get("code").toString()));
+        } else if (codes.size() == 0) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder("请输入以下准确地区名称：\n\r");
+            for (Map<String, Object> m : codes) {
+                sb.append(m.get("name")).append("\n\r");
+            }
+            return sb.toString();
+        }
     }
 }

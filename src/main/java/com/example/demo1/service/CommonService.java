@@ -80,7 +80,7 @@ public class CommonService {
     //发送消息
     public void sendInfo(JSONObject msg) {
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity formEntity = new HttpEntity<>(msg, headers);
+        HttpEntity formEntity = new HttpEntity(msg, headers);
         restTemplate.postForEntity(url, formEntity, String.class);
     }
 

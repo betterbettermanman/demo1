@@ -3,6 +3,7 @@ package com.example.demo1.controller;
 import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.WeatherService;
+import com.example.demo1.util.QrCodeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,17 +44,17 @@ public class ReceiverController {
         switch (event) {
             //群消息
             case "event_group_msg":
-
-
                 //学习交流群
                 if (requestMsg.getFrom_wxid().equals("4930551927@chatroom")) {
                     if (String.valueOf(requestMsg.getMsg()).contains("天气")) {
                         commonService.sendGroup("4930551927@chatroom", weatherService.getWeather(510100));
                     } else {
                         if (requestMsg.getFinal_from_wxid().equals("wxid_delkgc3apxqc22")) {
-//                        commonService.sendGroup("4930551927@chatroom", "广哥牛逼");
+                            if (String.valueOf(requestMsg.getMsg()).contains("狗") || String.valueOf(requestMsg.getMsg()).contains("dog")) {
+                                commonService.sendGroup("4930551927@chatroom", "广仔傻逼");
+                            }
                         } else if (requestMsg.getFinal_from_wxid().equals("wxid_auq1kbcw4d9x21")) {
-                            if (String.valueOf(requestMsg.getMsg()).contains("狗")||String.valueOf(requestMsg.getMsg()).contains("dog")) {
+                            if (String.valueOf(requestMsg.getMsg()).contains("狗") || String.valueOf(requestMsg.getMsg()).contains("dog")) {
                                 commonService.sendGroup("4930551927@chatroom", "龙仔傻逼");
                             }
                         }
@@ -64,14 +65,31 @@ public class ReceiverController {
                 }
                 //私聊消息
             case "event_friend_msg":
-                if (requestMsg.getFrom_wxid().equals("wxid_r6t23z9oht5t21")) {//喵喵
-                    String[] strings = {"猫咪", "我是猫咪"};
-                    if (Arrays.asList(strings).contains(requestMsg.getMsg())) {
-                        commonService.sendPicture("wxid_r6t23z9oht5t21", "http://localhost:8091/getImage");
+                String msg = requestMsg.getMsg().toString();
+                if (requestMsg.getType().equals("1")) {
+                    if (requestMsg.getFrom_wxid().equals("wxid_r6t23z9oht5t21")) {//喵喵专属
+                        String[] strings = {"猫咪", "我是猫咪"};
+                        if (Arrays.asList(strings).contains(requestMsg.getMsg())) {
+                            commonService.sendPicture("wxid_r6t23z9oht5t21", "http://localhost:8091/getImage");
+                        }
+                    }
+                    /*else if (requestMsg.getFrom_wxid().equals("wxid_uyu8cpztrem522")) {//验证当前机器是否正常
+                        commonService.sendInfo("wxid_uyu8cpztrem522", "机器正在运行中");
+                    }*/
+                    else if (requestMsg.getMsg().toString().endsWith("天气")) {//查询天气接口
+                        String cityName = msg.substring(0, msg.indexOf("天气"));
+                        String weather = weatherService.getWeather(cityName);
+                        if (weather != null) {
+                            commonService.sendGroup(requestMsg.getFrom_wxid(), weather);
+                        }
+                    }
+                } else if (requestMsg.getType().equals("3")) {
+                    String QrMsg = QrCodeUtil.decode(requestMsg.getMsg().toString());
+                    if (null != QrMsg) {
+                        commonService.sendInfo(requestMsg.getFrom_wxid(), QrMsg);
                     }
                 }
         }
     }
-
 }
 

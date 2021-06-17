@@ -24,4 +24,6 @@ public class WeatherSchedule {
         commonService.sendInfo("wxid_r6t23z9oht5t21", weatherService.getWeather(511400));//猫咪
 
     }
+
+
 }
