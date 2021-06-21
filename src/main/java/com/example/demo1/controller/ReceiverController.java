@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 @RestController
 public class ReceiverController {
@@ -37,6 +38,7 @@ public class ReceiverController {
             case "event_group_msg":                 //群消息
                 break;
             case "event_friend_msg":                //私聊消息
+                method1(requestMsg.getFrom_wxid(), msg);
                 break;
         }
         //公共处理逻辑
@@ -114,17 +116,16 @@ public class ReceiverController {
         }*/
 
     }
-
-    public void method1() {
-        /*if (requestMsg.getFrom_wxid().equals("wxid_r6t23z9oht5t21")) {//喵喵专属
+    //喵喵专属
+    public void method1(String wxid, String msg) {
+        if (wxid.equals("wxid_r6t23z9oht5t21")) {
             String[] strings = {"猫咪", "我是猫咪"};
             if (Arrays.asList(strings).contains(msg)) {
                 commonService.sendPicture("wxid_r6t23z9oht5t21", "http://localhost:8091/getImage");
             }
-        } else if (requestMsg.getFrom_wxid().equals("wxid_uyu8cpztrem522")) {//验证当前机器是否正常
-            commonService.sendInfo("wxid_uyu8cpztrem522", "机器正在运行中");
-        }*/
+        }
     }
+
 }
 
 
