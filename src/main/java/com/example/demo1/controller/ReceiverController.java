@@ -3,6 +3,7 @@ package com.example.demo1.controller;
 import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.config.AppProperties;
 import com.example.demo1.service.CommonService;
+import com.example.demo1.service.SqlService;
 import com.example.demo1.service.WeatherService;
 import com.example.demo1.util.QrCodeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,8 @@ public class ReceiverController {
     private WeatherService weatherService;
     @Autowired
     private AppProperties myAppProperties;
+    @Autowired
+    private SqlService sqlService;
 
     /* 接受微信消息 */
     @PostMapping("receiver")
@@ -45,6 +48,7 @@ public class ReceiverController {
         if (requestMsg.getType().equals("1")) {
             parseWeather(requestMsg.getFrom_wxid(), msg);
             createQr(requestMsg.getFrom_wxid(), msg);
+            createSql(requestMsg.getFrom_wxid(), msg);
         } else if (requestMsg.getType().equals("3")) {//识别图片二维码
             parseQr(requestMsg.getFrom_wxid(), msg);
         }
@@ -100,22 +104,17 @@ public class ReceiverController {
             }
         }
     }
-
-    //学习交流群
-    public void method() {
-       /* if (requestMsg.getFrom_wxid().equals("4930551927@chatroom")) {
-            if (requestMsg.getFinal_from_wxid().equals("wxid_delkgc3apxqc22")) {
-                if (String.valueOf(requestMsg.getMsg()).contains("狗") || String.valueOf(requestMsg.getMsg()).contains("dog")) {
-                    commonService.sendGroup("4930551927@chatroom", "广仔傻逼");
-                }
-            } else if (requestMsg.getFinal_from_wxid().equals("wxid_auq1kbcw4d9x21")) {
-                if (String.valueOf(requestMsg.getMsg()).contains("狗") || String.valueOf(requestMsg.getMsg()).contains("dog")) {
-                    commonService.sendGroup("4930551927@chatroom", "龙仔傻逼");
-                }
+    //生成sql语句
+    public void createSql(String wxid, String msg) {
+        if (msg.endsWith("&sql")) {
+            msg = msg.substring(0, msg.indexOf("&sql"));
+            if (msg.split(",").length == 2) {
+                commonService.sendGroup(wxid, sqlService.createSql(msg.split(",")[0], msg.split(",")[1]));
             }
-        }*/
 
+        }
     }
+
     //喵喵专属
     public void method1(String wxid, String msg) {
         if (wxid.equals("wxid_r6t23z9oht5t21")) {
@@ -125,6 +124,7 @@ public class ReceiverController {
             }
         }
     }
+
 
 }
 
