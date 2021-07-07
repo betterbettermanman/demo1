@@ -7,8 +7,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("wxid")
 public class WxIdProperties {
     private String yoga;
+    private String studyGroup;
 
-    public WxIdProperties() {
+    public String getStudyGroup() {
+        return studyGroup;
+    }
+
+    public void setStudyGroup(String studyGroup) {
+        this.studyGroup = studyGroup;
     }
 
     public String getYoga() {
