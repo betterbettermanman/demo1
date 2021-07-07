@@ -46,6 +46,7 @@ public class ReceiverController {
         String msg = requestMsg.getMsg().toString();
         switch (event) {
             case "EventGroupMsg":                 //群消息
+                yogaService.test(requestMsg.getFrom_wxid(), msg);
                 break;
             case "EventFriendMsg":                //私聊消息
                 method1(requestMsg.getFrom_wxid(), msg);
@@ -57,9 +58,6 @@ public class ReceiverController {
             parseWeather(requestMsg.getFrom_wxid(), msg);
             createQr(requestMsg.getFrom_wxid(), msg);
             createSql(requestMsg.getFrom_wxid(), msg);
-            if (StrUtil.equalsIgnoreCase(requestMsg.getFrom_wxid(), wxIdProperties.getStudyGroup())) {
-                yogaService.test(requestMsg.getFrom_wxid(), msg);
-            }
         } else if (requestMsg.getType().equals("3")) {//识别图片二维码
             parseQr(requestMsg.getFrom_wxid(), msg);
         }
