@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,24 +16,6 @@ public class CommonService {
     @Autowired
     private RestTemplate restTemplate;
 
-    //发送消息到微信群
-    public void sendGroup(String to_wxid, String msg) {
-        JSONObject requestMsg = createMsg();
-        requestMsg.put("type", "send_text_msg");
-        requestMsg.put("to_wxid", to_wxid);//群id
-        requestMsg.put("msg", msg);//信息
-        sendInfo(requestMsg);
-    }
-
-    //发送消息到个人
-    public void sendPerson(String to_wxid, String msg) {
-        JSONObject requestMsg = createMsg();
-        requestMsg.put("type", "send_text_msg");
-        requestMsg.put("to_wxid", to_wxid);//个人id
-        requestMsg.put("msg", msg);//信息
-        sendInfo(requestMsg);
-    }
-
     /**
      * 发送消息
      *
@@ -41,7 +24,7 @@ public class CommonService {
      */
     public void sendInfo(String wxId, String msg) {
         JSONObject requestMsg = createMsg();
-        requestMsg.put("type", "send_text_msg");
+        requestMsg.put("event", "SendTextMsg");
         requestMsg.put("to_wxid", wxId);//个人id
         requestMsg.put("msg", msg);//信息
         sendInfo(requestMsg);
@@ -55,7 +38,7 @@ public class CommonService {
      */
     public void sendPicture(String wxId, String picture) {
         JSONObject requestMsg = createMsg();
-        requestMsg.put("type", "send_image_msg");
+        requestMsg.put("event", "SendImageMsg");
         requestMsg.put("to_wxid", wxId);//个人id
         requestMsg.put("path", picture);//信息
         sendInfo(requestMsg);
@@ -69,9 +52,12 @@ public class CommonService {
     }
 
     //发送消息
-    public void sendInfo(JSONObject msg) {
+    private void sendInfo(JSONObject msg) {
+        MediaType type = MediaType.parseMediaType("application/json; charset=GBK");
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity formEntity = new HttpEntity(msg, headers);
+        headers.setContentType(type);
+        headers.add("Accept","application/json; charset=GBK");
+        HttpEntity formEntity = new HttpEntity(msg.toString(), headers);
         restTemplate.postForEntity(myAppProperties.getRemoteUrl(), formEntity, String.class);
     }
 

@@ -38,9 +38,9 @@ public class ReceiverController {
         String event = requestMsg.getEvent();
         String msg = requestMsg.getMsg().toString();
         switch (event) {
-            case "event_group_msg":                 //群消息
+            case "EventGroupMsg":                 //群消息
                 break;
-            case "event_friend_msg":                //私聊消息
+            case "EventFriendMsg":                //私聊消息
                 method1(requestMsg.getFrom_wxid(), msg);
                 method2(requestMsg.getFrom_wxid(), msg);
                 break;
@@ -101,7 +101,7 @@ public class ReceiverController {
             String cityName = msg.substring(0, msg.indexOf("天气"));
             String weather = weatherService.getWeather(cityName);
             if (weather != null) {
-                commonService.sendGroup(wxid, weather);
+                commonService.sendInfo(wxid, weather);
             }
         }
     }
@@ -110,7 +110,7 @@ public class ReceiverController {
         if (msg.endsWith("&sql")) {
             msg = msg.substring(0, msg.indexOf("&sql"));
             if (msg.split(",").length == 2) {
-                commonService.sendGroup(wxid, sqlService.createSql(msg.split(",")[0], msg.split(",")[1]));
+                commonService.sendInfo(wxid, sqlService.createSql(msg.split(",")[0], msg.split(",")[1]));
             }
 
         }
