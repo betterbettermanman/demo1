@@ -84,11 +84,11 @@
             <version>2.1.0</version>
         </dependency>
         <!--阿里数据库连接池 -->
-       <!-- <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid.version}</version>
-        </dependency>-->
+        <!-- <dependency>
+             <groupId>com.alibaba</groupId>
+             <artifactId>druid-spring-boot-starter</artifactId>
+             <version>${druid.version}</version>
+         </dependency>-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -105,7 +105,12 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>2.5.0</version>
         </dependency>
-
+        <!-- utils dependency -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.6.3</version>
+        </dependency>
     </dependencies>
 
     <build>
