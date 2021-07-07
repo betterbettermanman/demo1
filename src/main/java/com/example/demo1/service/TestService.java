@@ -16,10 +16,10 @@ public class TestService {
         Assert.notBlank(wxid, "wxid should be provided");
         Assert.notBlank(msg, "message should be provided");
         if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
-            commonService.sendGroup(wxid, getContent());
+            commonService.sendInfo(wxid, getContent());
         }
         if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "菜")) {
-            commonService.sendGroup(wxid, "我是菜狗");
+            commonService.sendInfo(wxid, "我是菜狗");
         }
     }
 
