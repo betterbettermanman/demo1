@@ -32,10 +32,10 @@ public class TestService {
 
     private static String getContent() {
         int random = NumberUtil.generateRandomNumber(1, 1000, 1)[0];
-        if (random / 2 == 0) {
+        if (random % 2 == 0) {
             return "龙仔太帅了";
         } else {
-            return "广仔太帅了";
+            return "广仔太帅了,菜狗！";
         }
     }
 }
