@@ -3,6 +3,7 @@ package com.example.demo1.service;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.example.demo1.config.AppProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,15 @@ public class TestService {
 
     @Autowired
     private CommonService commonService;
+    @Autowired
+    private AppProperties appProperties;
 
     public void test(String wxid, String msg) {
         Assert.notBlank(wxid, "wxid should be provided");
         Assert.notBlank(msg, "message should be provided");
+        if (StrUtil.equalsIgnoreCase(wxid, appProperties.getRobotId())) {
+            return;
+        }
         if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
             commonService.sendInfo(wxid, getContent());
         }
