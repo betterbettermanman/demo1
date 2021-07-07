@@ -1,0 +1,271 @@
+
+可爱猫-httpSDK-完美免费版
+
+简介
+完美免费版？意思是还有收费版？！没有哈！只有一个版本！不会收费！不会收费！
+提供与php、C#、Java、Go、Python等你所熟悉的任何编程语言的SDK功能，支持可爱猫4和5版本的全部完整功能！4和5要下载不同的插件文件哦(本想一个文件根据可爱猫版本号做兼容的，但是发现易语言没办法这么干，因为编译会失败！)
+目前只发布了可爱猫4的版本
+
+下载地址
+蓝奏云：https://wwa.lanzous.com/b0ew5ncjg 密码：gagm
+进去后下载发布时间为最新的http.cat.dll(可爱猫4)、iHttp.cat.dll(可爱猫5)文件即可
+地址里面也包含了最新版可爱猫4和可爱猫5，任君使用哈！
+源码地址
+码云：https://gitee.com/ikmui/http-sdk
+github :还没弄
+新手上路
+http-sdk-截图
+
+插件内置一个远程接口地址:http://www.uera.cn/api/robot/notice
+该地址包含了很多基础功能，例如进群提醒、退群提醒等、后面还会继续添加
+你有什么想要的功能也可以提，我们会选择性开发(仅限于群管、娱乐类)
+如果你在插件上进行了登录，还可以针对内置的功能进行各种配置！
+配置方法后面会出一个后台管理或者仅仅微信聊天窗口模式配置
+入门玩法
+所谓的入门玩法就是不使用官方提供的功能连接地址，切换为用户自己的地址，想要什么功能自己动手！官方某些功能做的不好？！自己动手！
+
+接收数据
+http-sdk在可爱猫收到消息(任何消息)，都会用POST方式以json格式的数据发送到你配置的远程处理接口上。下面我们就详细介绍下如何进行功能开发吧！
+
+数据结构(你接收的)
+http-sdk发送给你的，也就是你接收的数据
+
+Header数据[只说重要的]
+
+参数名	必选	类型	说明
+Name:	是	string	插件名字
+Ver	是	string	插件版本号｜框架版本code,如：1.0.1｜440000000
+Udid	是	string	当前电脑的设备唯一标示，32位字符串
+Authorization	否	string	授权,该字段会发生变化，若开启授权，你需要维护该字段
+下面这一段很重要！仔细看！
+
+这里说下通信鉴权如何使用吧！
+http-sdk必须登录方可开启(登录后，才能分配到Authorization，现在有效期1年，过期了对你也没影响)
+Authorization永久了？退出重新登录一下生成新的，额～没退出功能，嗨！去配置文件删除吧！然后重新登录
+当http-sdk发给你的Authorization发生变化时(例如上面那一步)，更新你存储的Authorization
+如何使用呢？当然是你请求http-sdk的时候了，header里面添加Authorization参数请求即可！
+如果感觉Authorization仿佛泄漏了，那就尽快换一个！并找下泄漏原因，避免别人命令你的机器人干你不喜欢的事情！
+
+Body数据[json]
+
+{
+    "event":"EventGroupMsg",//事件标示(当前值为群消息事件)
+    "robot_wxid":"wxid_5hxa04j4z6pg22",//机器人wxid
+    "robot_name":"",//机器人昵称，一般为空
+    "type":1,//1/文本消息 3/图片消息 34/语音消息  42/名片消息  43/视频 47/动态表情 48/地理位置  49/分享链接  2000/转账 2001/红包  2002/小程序  2003/群邀请
+    "from_wxid":"18900134932@chatroom",//群id，群消息事件才有
+    "from_name":"微群测",//群名字
+    "final_from_wxid":"sundreamer",//发该消息的用户微信id
+    "final_from_name":"遗忘悠剑o",//微信昵称
+    "to_wxid":"wxid_5hxa04j4z6pg22",//接收消息的人id，（一般是机器人收到了，也有可能是机器人发出的消息，别人收到了，那就是别人）
+    "msg":"图片https://b3logfile.com/bing/20201024.jpg",//消息内容(string/array) 使用时候根据不同的事件标示来定义这个值，字符串类型或者数据类型
+    "money":0.01 //金额，只有"EventReceivedTransfer"事件才有该参数
+}
+数据结构(你返回的)
+http-sdk发给你数据了，你总得给它一个应答吧！也就是告诉它如何处理这条消息
+当然你也可以无脑告诉它不处理，然后把消息加入到你程序的消息队列，异步告诉它(后面会讲如何主动让他做什么)
+在这里，我就介绍一下，你应该如何告诉它“怎么处理本条消息”吧！
+
+很简单，你也是只需要返回一条json数据即可，结构如下
+ps:咱们在回到开始介绍http-sdk发给你的数据那里，下面的例子是我处理了那条消息，并把消息里的图片地址转化为图片发送出来了，处理后，我给http-sdk返回的数据如下：
+{
+    "success":true,//true时，http-sdk才处理，false直接丢弃
+    "message":"successful!",
+    "event":"SendImageMsg",//告诉它干什么，SendImageMsg是发送图片事件
+    "robot_wxid":"wxid_5hxa04j4z6pg22",//用哪个机器人发
+    "to_wxid":"18900134932@chatroom",//发到哪里？群/好友
+    "member_wxid":"",
+    "member_name":"",
+    "group_wxid":"",
+    "msg":{//消息内容:发送 图片、视频、文件、动态表情都是这个结构
+        "url":"https:\/\/b3logfile.com\/bing\/20201024.jpg",
+        "name":"20201024.jpg"//带有扩展名的文件名，建议文件md5(尽量别重名，否则会给你发错哦！http-sdk会先检测文件在不在，如果不在才去url下载，再发送，否则直接发送)
+    }
+}
+event详解
+这里主要介绍一下你接收的数据里都有哪些事件(event)，发送给你的数据结构都是一致的哈！
+
+EventLogin
+新的账号登录成功/下线时
+不过多解释了，大部分用户不会在这里开发功能
+
+{
+    "event":"EventLogin",
+    "robot_wxid":"wxid_5hxa04j4z6pg22",
+    "robot_name":"",
+    "type":1,//账号离线
+    "from_wxid":"",
+    "from_name":"",
+    "final_from_wxid":"",
+    "final_from_name":"",
+    "to_wxid":"",
+    "msg":""
+}
+{
+    "event":"EventLogin",
+    "robot_wxid":"wxid_xxxxx",
+    "robot_name":"机器人昵称",
+    "type":0,//账号上线
+    "from_wxid":"",
+    "from_name":"",
+    "final_from_wxid":"",
+    "final_from_name":"",
+    "to_wxid":"",
+    "msg":{
+        "account_wxid":"wxid_xxxxxxxx",
+        "wxid":"wxid_xxxxxxxxxxx",
+        "wx_num":"微信号",
+        "nickname":"微信昵称",
+        "headimgurl":"头像",
+        "country":"CN",
+        "province":"Beijing",
+        "city":"",
+        "sex":0,
+        "scene":0,
+        "signature":"签名文档",
+        "backgroundimgurl":"背景图",
+        "wx_wind_handle":1837386,
+        "wx_pid":7060,
+        "status":1,
+        "login_time":1609667118
+    }
+}
+EventGroupMsg
+群消息事件（收到群消息时，运行这里）
+群消息事件，这里可开发的东西就比较多了！
+
+EventFriendMsg
+私聊消息事件（收到私聊消息时，运行这里）
+EventReceivedTransfer
+收到转账事件（收到好友转账时，运行这里）
+EventScanCashMoney
+面对面收款（二维码收款时，运行这里）
+EventFriendVerify
+好友请求事件
+EventContactsChange
+朋友变动事件（当前为测试版(可爱猫还没提供)，还未启用，留以备用）
+EventGroupMemberAdd
+群成员增加事件（新人进群）
+EventGroupMemberDecrease
+群成员减少事件（群成员退出）
+EventSysMsg
+系统消息事件
+发送数据
+同样，你也可以给http-sdk发送数据，格式和上面的返回数据一模一样！
+需要你用POST方式以json格式发送！
+
+数据结构(你发送的)
+你要发给 http-sdk 的数据
+
+Header数据[只说重要的]
+
+参数名	必选	类型	说明
+Authorization	否	string	http-sdk开启通信鉴权时，该值必填！
+Body数据[json]
+
+发送的数据结构例子
+{
+    "event":"GetappInfo",//获取插件信息只需要event即可，所以其他都可以传空
+    "to_wxid":"",
+    "msg":"",
+    "robot_wxid":"",
+    "group_wxid":"",
+    "member_wxid":""
+}
+数据结构(http-sdk返回的)
+成功返回例子(code >= 0 都是成功)
+
+{
+  "event": "GetappInfo",
+  "code": 0,
+  "msg": "成功",
+  "data": {
+      "name": "http-sdk",
+      "author": "悠剑",
+      "img": "这里是图片的base64，没啥用，考虑后续版本不返回了",
+      "desc": "提供与php、C#、Java、Go、Python等你所熟悉的任何编程语言的SDK功能，支持可爱猫4和5版本的全部完整功能！",
+      "version": "1.0.1",
+      "author_key": "44520959",
+      "api_version": "4.2",
+      "menu_button_title": "配置"
+  }
+}
+失败返回例子(code<0就是失败)
+
+这个错误就是因为http-sdk开启了通信鉴权，而给它post数据时，header里没带有效的Authorization
+
+{
+    "data": null,
+     "code": -1,
+     "msg": "权限验证失败"
+}
+event详解
+这里主要介绍一下你可以给http-sdk发送哪些事件命令，你发送的数据结构都是一致的哈！
+
+SendTextMsg
+发送文本消息 robot_wxid to_wxid(群/好友) msg
+SendImageMsg
+发送图片消息 robot_wxid to_wxid(群/好友) msg(name[md5值或其他唯一的名字，包含扩展名例如1.jpg], url)
+SendVideoMsg
+发送视频消息 robot_wxid to_wxid(群/好友) msg(name[md5值或其他唯一的名字，包含扩展名例如1.mp4], url)
+SendFileMsg
+发送文件消息 robot_wxid to_wxid(群/好友) msg(name[md5值或其他唯一的名字，包含扩展名例如1.txt], url)
+SendGroupMsgAndAt
+发送群消息并艾特(4.4只能艾特一人) robot_wxid, group_wxid, member_wxid, member_name, msg
+SendEmojiMsg
+发送动态表情 robot_wxid to_wxid(群/好友) msg(name[md5值或其他唯一的名字，包含扩展名例如1.gif], url)
+SendLinkMsg
+发送分享链接 robot_wxid, to_wxid(群/好友), msg(title, text, target_url, pic_url, icon_url)
+SendMusicMsg
+发送音乐分享 robot_wxid, to_wxid(群/好友), msg(music_name, type)
+GetRobotName
+取登录账号昵称 robot_wxid
+GetRobotHeadimgurl
+取登录账号头像 robot_wxid
+GetLoggedAccountList
+取登录账号列表 不需要参数
+GetFriendList
+取好友列表 robot_wxid(不传该值，返回全部账号的好友列表)
+GetGroupList
+取群聊列表 robot_wxid(不传返回全部机器人的)
+GetGroupMemberList
+取群成员列表 robot_wxid, group_wxid
+GetGroupMemberInfo
+取群成员详细 robot_wxid, group_wxid, member_wxid
+AcceptTransfer
+接收好友转账 robot_wxid, to_wxid, msg(接收到事件里的msg原样传回)
+AgreeGroupInvite
+同意群聊邀请 robot_wxid, msg
+AgreeFriendVerify
+同意好友请求 robot_wxid, msg
+EditFriendNote
+修改好友备注 robot_wxid, to_wxid, msg
+DeleteFriend
+删除好友 robot_wxid, to_wxid
+GetappInfo
+取插件信息 无参数
+GetAppDir
+取应用目录 无
+测试发现可爱猫能取到，但是扔进返回数据里会消失，传不出来
+
+AddAppLogs
+添加日志 msg
+ReloadApp
+重载插件 无
+RemoveGroupMember
+踢出群成员 robot_wxid, group_wxid, member_wxid
+EditGroupName
+修改群名称 robot_wxid, group_wxid, msg
+EditGroupNotice
+修改群公告 robot_wxid, group_wxid, msg
+BuildNewGroup
+建立新群 robot_wxid, msg(好友Id用”|”分割)
+测试发现可爱猫执行成功，但是没见群在哪。。。你们自测！
+
+QuitGroup
+退出群聊 robot_wxid, group_wxid
+我测试发现没退出来，也可能可爱猫没实现吧 你们自测
+
+InviteInGroup
+邀请加入群聊 robot_wxid, group_wxid, to_wxid
+这里可以制作那种暗号入群的功能，相当不错哈～
