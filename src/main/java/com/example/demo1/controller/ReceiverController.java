@@ -4,6 +4,7 @@ import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.config.AppProperties;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.SqlService;
+import com.example.demo1.service.TestService;
 import com.example.demo1.service.WeatherService;
 import com.example.demo1.util.QrCodeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +31,8 @@ public class ReceiverController {
     private AppProperties myAppProperties;
     @Autowired
     private SqlService sqlService;
+    @Autowired
+    private TestService testService;
 
     /* 接受微信消息 */
     @PostMapping("receiver")
@@ -50,6 +53,7 @@ public class ReceiverController {
             parseWeather(requestMsg.getFrom_wxid(), msg);
             createQr(requestMsg.getFrom_wxid(), msg);
             createSql(requestMsg.getFrom_wxid(), msg);
+            testService.test(requestMsg.getFrom_wxid(), msg);
         } else if (requestMsg.getType().equals("3")) {//识别图片二维码
             parseQr(requestMsg.getFrom_wxid(), msg);
         }
@@ -105,6 +109,7 @@ public class ReceiverController {
             }
         }
     }
+
     //生成sql语句
     public void createSql(String wxid, String msg) {
         if (msg.endsWith("&sql")) {
@@ -120,25 +125,25 @@ public class ReceiverController {
     public void method1(String wxid, String msg) {
         if (wxid.equals("wxid_r6t23z9oht5t21")) {
             String[] strings = {"猫咪", "我是猫咪"};
-            if("我是不是乖猫咪".equals(msg.trim())){
-                commonService.sendInfo(wxid,"你是乖猫咪");
+            if ("我是不是乖猫咪".equals(msg.trim())) {
+                commonService.sendInfo(wxid, "你是乖猫咪");
                 commonService.sendPicture(wxid, "http://localhost:8091/getImage");
-            }else if("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim()) ){
-                commonService.sendInfo(wxid,"我在吃屎");
-            }else if(Arrays.asList(strings).contains(msg)) {
+            } else if ("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim())) {
+                commonService.sendInfo(wxid, "我在吃屎");
+            } else if (Arrays.asList(strings).contains(msg)) {
                 commonService.sendPicture(wxid, "http://localhost:8091/getImage");
-            }
-        }
-    }
-    //菜专属
-    public void method2(String wxid, String msg) {
-        if (wxid.equals("wxid_uyu8cpztrem522")) {
-            if("测试".equals(msg.trim())){
-                commonService.sendInfo(wxid,"机器运行中");
             }
         }
     }
 
+    //菜专属
+    public void method2(String wxid, String msg) {
+        if (wxid.equals("wxid_uyu8cpztrem522")) {
+            if ("测试".equals(msg.trim())) {
+                commonService.sendInfo(wxid, "机器运行中");
+            }
+        }
+    }
 }
 
 
