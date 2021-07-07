@@ -19,7 +19,7 @@ public class TestService {
         Assert.isNull(wxid, "wxid should be provided");
         Assert.isNull(msg, "message should be provided");
         if (StrUtil.equalsIgnoreCase(wxid, wxIdProperties.getYoga())) {
-            if (StrUtil.equalsIgnoreCase(StrUtil.trim(msg), "帅")) {
+            if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
                 commonService.sendGroup(wxid, getContent());
             }
         }
