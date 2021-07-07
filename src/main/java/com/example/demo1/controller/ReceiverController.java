@@ -127,7 +127,7 @@ public class ReceiverController {
 
     //喵喵专属
     public void method1(String wxid, String msg) {
-        if (wxid.equals("wxid_r6t23z9oht5t21") || StrUtil.equalsIgnoreCase(wxIdProperties.getStudyGroup(), wxid)) {
+        if (wxid.equals("wxid_r6t23z9oht5t21")) {
             String[] strings = {"猫咪", "我是猫咪"};
             if ("我是不是乖猫咪".equals(msg.trim())) {
                 commonService.sendInfo(wxid, "你是乖猫咪");
