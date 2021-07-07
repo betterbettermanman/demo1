@@ -1,11 +1,13 @@
 package com.example.demo1.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.config.AppProperties;
+import com.example.demo1.config.WxIdProperties;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.SqlService;
-import com.example.demo1.service.TestService;
 import com.example.demo1.service.WeatherService;
+import com.example.demo1.service.YogaService;
 import com.example.demo1.util.QrCodeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,9 @@ public class ReceiverController {
     @Autowired
     private SqlService sqlService;
     @Autowired
-    private TestService testService;
+    private YogaService yogaService;
+    @Autowired
+    private WxIdProperties wxIdProperties;
 
     /* 接受微信消息 */
     @PostMapping("receiver")
@@ -53,7 +57,7 @@ public class ReceiverController {
             parseWeather(requestMsg.getFrom_wxid(), msg);
             createQr(requestMsg.getFrom_wxid(), msg);
             createSql(requestMsg.getFrom_wxid(), msg);
-            testService.test(requestMsg.getFrom_wxid(), msg);
+            yogaService.test(requestMsg.getFrom_wxid(), msg);
         } else if (requestMsg.getType().equals("3")) {//识别图片二维码
             parseQr(requestMsg.getFrom_wxid(), msg);
         }
@@ -123,7 +127,7 @@ public class ReceiverController {
 
     //喵喵专属
     public void method1(String wxid, String msg) {
-        if (wxid.equals("wxid_r6t23z9oht5t21")) {
+        if (wxid.equals("wxid_r6t23z9oht5t21") || StrUtil.equalsIgnoreCase(wxIdProperties.getStudyGroup(), wxid)) {
             String[] strings = {"猫咪", "我是猫咪"};
             if ("我是不是乖猫咪".equals(msg.trim())) {
                 commonService.sendInfo(wxid, "你是乖猫咪");

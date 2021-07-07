@@ -4,21 +4,24 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.demo1.config.AppProperties;
+import com.example.demo1.config.WxIdProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TestService {
+public class YogaService {
 
     @Autowired
     private CommonService commonService;
     @Autowired
     private AppProperties appProperties;
+    @Autowired
+    private WxIdProperties wxIdProperties;
 
     public void test(String wxid, String msg) {
         Assert.notBlank(wxid, "wxid should be provided");
         Assert.notBlank(msg, "message should be provided");
-        if (StrUtil.equalsIgnoreCase(wxid, appProperties.getRobotId())) {
+        if (StrUtil.equalsIgnoreCase(wxid, appProperties.getRobotId()) || StrUtil.equalsIgnoreCase(wxid, wxIdProperties.getStudyGroup())) {
             return;
         }
         if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
@@ -33,9 +36,9 @@ public class TestService {
     private static String getContent() {
         int random = NumberUtil.generateRandomNumber(1, 1000, 1)[0];
         if (random % 2 == 0) {
-            return "龙仔太帅了";
+            return "龙仔太帅了，强仔在吃屎！";
         } else {
-            return "广仔太帅了,菜狗！";
+            return "广仔太帅了,强仔是菜狗！";
         }
     }
 }
