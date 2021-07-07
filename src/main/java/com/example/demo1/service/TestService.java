@@ -16,11 +16,9 @@ public class TestService {
     private WxIdProperties wxIdProperties;
 
     public void test(String wxid, String msg) {
-        Assert.isNull(wxid, "wxid should be provided");
-        Assert.isNull(msg, "message should be provided");
         if (StrUtil.equalsIgnoreCase(wxid, wxIdProperties.getYoga())) {
             if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
-                commonService.sendGroup(wxid, getContent());
+                commonService.sendInfo(wxid, getContent());
             }
         }
     }
