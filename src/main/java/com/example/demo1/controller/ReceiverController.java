@@ -42,6 +42,7 @@ public class ReceiverController {
                 break;
             case "event_friend_msg":                //私聊消息
                 method1(requestMsg.getFrom_wxid(), msg);
+                method2(requestMsg.getFrom_wxid(), msg);
                 break;
         }
         //公共处理逻辑
@@ -119,12 +120,24 @@ public class ReceiverController {
     public void method1(String wxid, String msg) {
         if (wxid.equals("wxid_r6t23z9oht5t21")) {
             String[] strings = {"猫咪", "我是猫咪"};
-            if (Arrays.asList(strings).contains(msg)) {
-                commonService.sendPicture("wxid_r6t23z9oht5t21", "http://localhost:8091/getImage");
+            if("我是不是乖猫咪".equals(msg.trim())){
+                commonService.sendInfo(wxid,"你是乖猫咪");
+                commonService.sendPicture(wxid, "http://localhost:8091/getImage");
+            }else if("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim()) ){
+                commonService.sendInfo(wxid,"我在吃屎");
+            }else if(Arrays.asList(strings).contains(msg)) {
+                commonService.sendPicture(wxid, "http://localhost:8091/getImage");
             }
         }
     }
-
+    //菜专属
+    public void method2(String wxid, String msg) {
+        if (wxid.equals("wxid_uyu8cpztrem522")) {
+            if("测试".equals(msg.trim())){
+                commonService.sendInfo(wxid,"机器运行中");
+            }
+        }
+    }
 
 }
 

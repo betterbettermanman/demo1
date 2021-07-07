@@ -31,4 +31,9 @@ public class WeatherSchedule {
         commonService.sendInfo("wxid_uyu8cpztrem522", "还贷款拉！！");//菜
         commonService.sendInfo("wxid_r6t23z9oht5t21", "还贷款拉!!");//猫咪
     }
+    //添加每周五发送周报提醒
+    @Scheduled(cron="0 0 17 ? * FRI")
+    private void Task4(){
+        commonService.sendInfo("wxid_uyu8cpztrem522", "发周报拉！！");//菜
+    }
 }
