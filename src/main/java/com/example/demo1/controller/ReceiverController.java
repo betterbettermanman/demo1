@@ -134,7 +134,6 @@ public class ReceiverController {
                 commonService.sendPicture(wxid, "http://localhost:8091/getImage");
             } else if ("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim())) {
                 commonService.sendInfo(wxid, "我在吃屎");
-                commonService.sendInfo(wxIdProperties.getStudyGroup(), "我在吃屎");
             } else if (Arrays.asList(strings).contains(msg)) {
                 commonService.sendPicture(wxid, "http://localhost:8091/getImage");
             }
