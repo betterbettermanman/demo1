@@ -21,7 +21,7 @@ public class YogaService {
     public void test(String wxid, String msg) {
         Assert.notBlank(wxid, "wxid should be provided");
         Assert.notBlank(msg, "message should be provided");
-        if (StrUtil.equalsIgnoreCase(wxid, appProperties.getRobotId()) || StrUtil.equalsIgnoreCase(wxid, wxIdProperties.getStudyGroup())) {
+        if (StrUtil.equalsIgnoreCase(wxid, appProperties.getRobotId())) {
             return;
         }
         if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {

@@ -57,7 +57,9 @@ public class ReceiverController {
             parseWeather(requestMsg.getFrom_wxid(), msg);
             createQr(requestMsg.getFrom_wxid(), msg);
             createSql(requestMsg.getFrom_wxid(), msg);
-            yogaService.test(requestMsg.getFrom_wxid(), msg);
+            if (StrUtil.equalsIgnoreCase(requestMsg.getFrom_wxid(), wxIdProperties.getStudyGroup())) {
+                yogaService.test(requestMsg.getFrom_wxid(), msg);
+            }
         } else if (requestMsg.getType().equals("3")) {//识别图片二维码
             parseQr(requestMsg.getFrom_wxid(), msg);
         }
