@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -42,10 +44,10 @@ public class CommonService {
         JSONObject requestMsg = createMsg();
         requestMsg.put("event", "SendImageMsg");
         requestMsg.put("to_wxid", wxId);//个人id
-        JSONObject jsonObject = new JSONObject();
+        Map jsonObject = new HashMap();
         jsonObject.put("url",picture);
-        jsonObject.put("name", UUID.randomUUID().toString());
-        requestMsg.put("msg", jsonObject.toString());//信息
+        jsonObject.put("name", picture.substring(picture.indexOf("?")+1));
+        requestMsg.put("msg", jsonObject);//信息
         sendInfo(requestMsg);
     }
 
