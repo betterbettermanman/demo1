@@ -1,5 +1,7 @@
 package com.example.demo1.bean;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 public class ReceiverRequestMsg {
 
     //事件名称
@@ -20,6 +22,7 @@ public class ReceiverRequestMsg {
     //发给谁，往往是机器人自己(也可能别的成员收到消息)
     private String to_wxid;
     //消息体(str/json) 不同事件和不同type都不一样，自己去试验吧
+    @JsonDeserialize(using = AAADeserializer.class)
     private Object msg;
     private String msgid;
     private Object json_msg;

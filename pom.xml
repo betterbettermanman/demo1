@@ -111,6 +111,17 @@
             <artifactId>hutool-all</artifactId>
             <version>5.6.3</version>
         </dependency>
+        <!-- java对象布局JOL，描述对象在堆内存的布局 -->
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <version>0.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.66</version>
+        </dependency>
     </dependencies>
 
     <build>
