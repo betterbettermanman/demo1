@@ -36,4 +36,10 @@ public class WeatherSchedule {
     private void Task4(){
         commonService.sendInfo("wxid_uyu8cpztrem522", "发周报拉！！");//菜
     }
+
+    //每天10点提醒软著情况
+    @Scheduled(cron="0 0 10 * * ?")
+    private void Task5(){
+        commonService.sendInfo("24598305711@chatroom", "软著 软著 不要忘记了，22号就要交了");
+    }
 }

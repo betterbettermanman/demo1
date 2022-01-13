@@ -1,6 +1,7 @@
 package com.example.demo1.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.config.AppProperties;
 import com.example.demo1.config.WxIdProperties;
@@ -72,9 +73,9 @@ public class ReceiverController {
         while ((str = reader.readLine()) != null) {
             result = result + str;
         }
-        System.out.println(result);
-        ReceiverRequestMsg requestMsg = objectMapper.readValue(result, ReceiverRequestMsg.class);// json字符串转实体
-        return requestMsg;
+        String s=result.replaceAll("\\\\","\\\\\\\\");
+        System.out.println(s);
+        return JSONObject.parseObject(s,ReceiverRequestMsg.class);
     }
 
     /* 解析二维码图片 */
@@ -127,7 +128,7 @@ public class ReceiverController {
 
     //喵喵专属
     public void method1(String wxid, String msg) {
-        if (wxid.equals("wxid_r6t23z9oht5t21")) {
+        if (wxid.equals("wxid_r6t23z9oht5t21")||wxid.equals("wxid_uyu8cpztrem522")) {
             String[] strings = {"猫咪", "我是猫咪"};
             if ("我是不是乖猫咪".equals(msg.trim())) {
                 commonService.sendInfo(wxid, "你是乖猫咪");
@@ -145,6 +146,8 @@ public class ReceiverController {
         if (wxid.equals("wxid_uyu8cpztrem522")) {
             if ("测试".equals(msg.trim())) {
                 commonService.sendInfo(wxid, "机器运行中");
+            }else if("测试图片".equals(msg.trim())){
+                commonService.sendPicture(wxid, "机器运行中");
             }
         }
     }

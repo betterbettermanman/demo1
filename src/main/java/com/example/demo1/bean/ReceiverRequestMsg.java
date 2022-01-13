@@ -23,7 +23,7 @@ public class ReceiverRequestMsg {
     private String to_wxid;
     //消息体(str/json) 不同事件和不同type都不一样，自己去试验吧
     @JsonDeserialize(using = AAADeserializer.class)
-    private Object msg;
+    private String msg;
     private String msgid;
     private Object json_msg;
 
@@ -99,11 +99,11 @@ public class ReceiverRequestMsg {
         this.to_wxid = to_wxid;
     }
 
-    public Object getMsg() {
+    public String getMsg() {
         return msg;
     }
 
-    public void setMsg(Object msg) {
+    public void setMsg(String msg) {
         this.msg = msg;
     }
 

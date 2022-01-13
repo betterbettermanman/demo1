@@ -1,0 +1,347 @@
+CommonService.java
+package com.example.demo1.service;
+
+import com.example.demo1.config.AppProperties;
+import net.sf.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+public class CommonService {
+    @Autowired
+    private AppProperties myAppProperties;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    /**
+     * 发送消息
+     *
+     * @param wxId 目标人id，或者目标群id
+     * @param msg  消息
+     */
+    public void sendInfo(String wxId, String msg) {
+        JSONObject requestMsg = createMsg();
+        requestMsg.put("event", "SendTextMsg");
+        requestMsg.put("to_wxid", wxId);//个人id
+        requestMsg.put("msg", msg);//信息
+        sendInfo(requestMsg);
+    }
+
+    /**
+     * 发送图片
+     *
+     * @param wxId    目标人id或者目标群id
+     * @param picture 图片URL
+     */
+    public void sendPicture(String wxId, String picture) {
+        JSONObject requestMsg = createMsg();
+        requestMsg.put("event", "SendImageMsg");
+        requestMsg.put("to_wxid", wxId);//个人id
+        Map jsonObject = new HashMap();
+        jsonObject.put("url",picture);
+        jsonObject.put("name", picture.substring(picture.indexOf("?")+1));
+        requestMsg.put("msg", jsonObject);//信息
+        sendInfo(requestMsg);
+    }
+
+    //创建消息体
+    public JSONObject createMsg() {
+        JSONObject msg = new JSONObject();
+        msg.put("robot_wxid", myAppProperties.getRobotId());
+        return msg;
+    }
+
+    //发送消息
+    private void sendInfo(JSONObject msg) {
+        MediaType type = MediaType.parseMediaType("application/json; charset=GBK");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(type);
+        headers.add("Accept","application/json; charset=GBK");
+        HttpEntity formEntity = new HttpEntity(msg.toString(), headers);
+        restTemplate.postForEntity(myAppProperties.getRemoteUrl(), formEntity, String.class);
+    }
+
+}
+
+ExcelService.java
+package com.example.demo1.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class ExcelService {
+
+
+}
+
+Mutex.java
+package com.example.demo1.service;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Mutex implements Lock {
+    @Override
+    public void lock() {
+
+    }
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+
+    }
+
+    @Override
+    public boolean tryLock() {
+        return false;
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+        return false;
+    }
+
+    @Override
+    public void unlock() {
+
+    }
+
+    @Override
+    public Condition newCondition() {
+        return null;
+    }
+
+    private static class Sync extends AbstractQueuedSynchronizer {
+        @Override
+        protected boolean tryAcquire(int arg) {
+            if (compareAndSetState(1, 0)) {
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int arg) {
+            if (getState() == 0) {
+                throw new IllegalStateException();
+            }
+            setExclusiveOwnerThread(null);
+            setState(0);
+            return true;
+        }
+
+        @Override
+        protected int tryAcquireShared(int arg) {
+            return super.tryAcquireShared(arg);
+        }
+
+        @Override
+        protected boolean tryReleaseShared(int arg) {
+            return super.tryReleaseShared(arg);
+        }
+
+        @Override
+        protected boolean isHeldExclusively() {
+            return getState() == 1;
+        }
+
+        /* 返回一个Condition，每个condition都包含了一个condition队列*/
+        Condition newCondition() {
+            return new ConditionObject();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        ReentrantLock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+        for (int i = 0; i < 5; i++) {
+            new Thread(() -> {
+                try {
+                    reentrantLock.lock();
+                    condition.await();
+                    System.out.println(Thread.currentThread().getName() + "被唤醒");
+                    reentrantLock.unlock();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+        Thread.sleep(5000);
+        reentrantLock.lock();
+        condition.signal();
+        reentrantLock.unlock();
+    }
+
+
+}
+
+SqlService.java
+package com.example.demo1.service;
+
+import org.springframework.stereotype.Service;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+@Service
+public class SqlService {
+    public String createSql(String startTime, String endTime) {
+        StringBuilder sql = new StringBuilder();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = null;
+        try {
+            start = simpleDateFormat.parse(startTime);
+            Date end = simpleDateFormat.parse(endTime);
+            int s = start.compareTo(end);
+            for (; start.compareTo(end) <= 0; start = addDate(start, 1)) {
+                if (sql.length() == 0) {
+                    sql.append("SELECT '").append(simpleDateFormat.format(start)).append("',count(amount),sum(amount) FROM index_details WHERE bidding='INVITE_BIDDING' and publish_at >= '").append(simpleDateFormat.format(start)).append(" 00:00:00' and publish_at <= '").append(simpleDateFormat.format(start)).append(" 23:59:59'");
+                } else {
+                    sql.append(" union all SELECT '").append(simpleDateFormat.format(start)).append("',count(amount),sum(amount) FROM index_details WHERE bidding='INVITE_BIDDING' and publish_at >= '").append(simpleDateFormat.format(start)).append(" 00:00:00' and publish_at <= '").append(simpleDateFormat.format(start)).append(" 23:59:59'");
+                }
+            }
+            sql.append(";");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return sql.toString();
+    }
+
+    public Date addDate(Date current, int num) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(current);
+        calendar.add(calendar.DATE, num);
+        current = calendar.getTime();
+        return current;
+    }
+}
+
+WeatherService.java
+package com.example.demo1.service;
+
+import com.example.demo1.config.AppProperties;
+import com.example.demo1.dao.CityMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class WeatherService {
+    @Autowired
+    private CityMapper cityMapper;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private AppProperties myAppProperties;
+
+    /**
+     * @param cityCode 城市编码
+     */
+    public String getWeather(int cityCode) {
+        String url = String.format("%s?key=%s&city=%s", myAppProperties.getWeatherUrl(), myAppProperties.getWeatherKey(), cityCode);
+        Map m = restTemplate.getForObject(url, Map.class);
+        StringBuilder builder = new StringBuilder();
+        if ("10000".equals(String.valueOf(m.get("infocode")))) {
+            List lives = (List) m.get("lives");
+            if (lives.size() == 1) {
+                Map<String, String> weather = (Map) lives.get(0);
+                builder.append("地区：").append(weather.get("province") + weather.get("city")).append("\n");
+                /* 时间转换 */
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime localDateTime = LocalDateTime.parse(weather.get("reporttime"), dateTimeFormatter);
+                DateTimeFormatter dateTimeFormatter2 = DateTimeFormatter.ofPattern("MM-dd");
+                String dateString = dateTimeFormatter2.format(localDateTime);
+
+                builder.append("时间：").append(dateString).append("\n");
+                builder.append("天气：").append(weather.get("weather")).append("\n");
+                builder.append("温度：").append(weather.get("temperature")).append("\n");
+                builder.append("风向：").append(weather.get("winddirection")).append("/" + weather.get("windpower")).append("\n");
+            }
+        }
+        System.out.println(builder.toString());
+        return builder.toString();
+    }
+
+    public String getWeather(String cityName) {
+        List<Map<String, Object>> codes = cityMapper.selectCode(cityName);
+        if (codes.size() == 1) {
+            return getWeather(Integer.parseInt(codes.get(0).get("code").toString()));
+        } else if (codes.size() == 0) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder("请输入以下准确地区名称：\n\r");
+            for (Map<String, Object> m : codes) {
+                sb.append(m.get("name")).append("\n\r");
+            }
+            return sb.toString();
+        }
+    }
+}
+
+YogaService.java
+package com.example.demo1.service;
+
+import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
+import com.example.demo1.config.AppProperties;
+import com.example.demo1.config.WxIdProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class YogaService {
+
+    @Autowired
+    private CommonService commonService;
+    @Autowired
+    private WxIdProperties wxIdProperties;
+
+    public void test(String wxid, String msg) {
+        Assert.notBlank(wxid, "wxid should be provided");
+        Assert.notBlank(msg, "message should be provided");
+
+        if (!StrUtil.equalsIgnoreCase(wxid, wxIdProperties.getStudyGroup())) {
+            return;
+        }
+        if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "帅")) {
+            commonService.sendInfo(wxid, getContent());
+        }
+        if (StrUtil.containsIgnoreCase(StrUtil.trim(msg), "菜")) {
+            commonService.sendInfo(wxid, "我是菜");
+        }
+    }
+
+
+    private static String getContent() {
+        int random = NumberUtil.generateRandomNumber(1, 1000, 1)[0];
+        if (random % 2 == 0) {
+            return "龙仔太帅了！";
+        } else {
+            return "广仔太帅了！";
+        }
+    }
+
+}
+
+

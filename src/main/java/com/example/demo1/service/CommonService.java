@@ -44,10 +44,10 @@ public class CommonService {
         JSONObject requestMsg = createMsg();
         requestMsg.put("event", "SendImageMsg");
         requestMsg.put("to_wxid", wxId);//个人id
-        Map jsonObject = new HashMap();
-        jsonObject.put("url",picture);
-        jsonObject.put("name", picture.substring(picture.indexOf("?")+1));
-        requestMsg.put("msg", jsonObject);//信息
+        JSONObject msg = new JSONObject();
+        msg.put("url","http://localhost:8091/getImage");
+        msg.put("name","preview.jpg");
+        requestMsg.put("msg",msg);
         sendInfo(requestMsg);
     }
 
@@ -65,6 +65,7 @@ public class CommonService {
         headers.setContentType(type);
         headers.add("Accept","application/json; charset=GBK");
         HttpEntity formEntity = new HttpEntity(msg.toString(), headers);
+        System.out.println("sendMsg:"+formEntity);
         restTemplate.postForEntity(myAppProperties.getRemoteUrl(), formEntity, String.class);
     }
 
