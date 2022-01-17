@@ -35,6 +35,22 @@ public class CommonService {
     }
 
     /**
+     * 发送消息并且@人
+     * @param wxId
+     * @param msg
+     * @param memberWxid
+     */
+    public void sendInfo(String wxId, String msg,String memberWxid) {
+        JSONObject requestMsg = createMsg();
+        requestMsg.put("event", "SendGroupMsgAndAt");
+        requestMsg.put("group_wxid", wxId);//目标id
+        requestMsg.put("member_wxid", memberWxid);//@的人id
+        requestMsg.put("member_name", "蔡小喵");//@的人id
+        requestMsg.put("msg", msg);//信息
+        sendInfo(requestMsg);
+    }
+
+    /**
      * 发送图片
      *
      * @param wxId    目标人id或者目标群id

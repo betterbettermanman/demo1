@@ -1,6 +1,8 @@
 package com.example.demo1.schedule;
 
+import com.example.demo1.bean.Task;
 import com.example.demo1.service.CommonService;
+import com.example.demo1.service.TaskService;
 import com.example.demo1.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,8 @@ public class WeatherSchedule {
     private CommonService commonService;
     @Autowired
     private WeatherService weatherService;
+    @Autowired
+    private TaskService taskService;
 
     //3.添加定时任务
     @Scheduled(cron = "0 0 6 * * ?")
@@ -41,5 +45,11 @@ public class WeatherSchedule {
     @Scheduled(cron="0 0 10 * * ?")
     private void Task5(){
         commonService.sendInfo("24598305711@chatroom", "软著 软著 不要忘记了，22号就要交了");
+    }
+
+    //每天7点提醒工作任务计划
+    @Scheduled(cron="0 0 7 * * ?")
+    private void Task6(){
+        taskService.remindTask();
     }
 }

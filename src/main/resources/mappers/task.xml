@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo1.dao.TaskMapper">
+
+    <select id="selectTask" resultType="map">
+        select
+            context AS context,
+            person_name AS personName,
+            message_type AS messageType,
+            targetAddress AS targetAddress,
+            is_connect AS isConnect
+        from task where status='1'
+    </select>
+
+
+</mapper>

@@ -1,5 +1,6 @@
 package com.example.demo1.controller;
 
+import com.example.demo1.service.TaskService;
 import com.example.demo1.service.WeatherService;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Row;
@@ -172,5 +173,16 @@ public class TestController {
         objectThreadLocal.get();
         objectThreadLocal.set("helolo");
         objectThreadLocal.get();
+    }
+
+    @Autowired
+    private TaskService taskService;
+
+    /**
+     * 测试发送任务
+     */
+    @GetMapping("/test3")
+    public void test3() {
+        taskService.remindTask();
     }
 }

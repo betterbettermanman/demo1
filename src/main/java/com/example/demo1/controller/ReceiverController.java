@@ -53,6 +53,7 @@ public class ReceiverController {
                 method1(requestMsg.getFrom_wxid(), msg);
                 method2(requestMsg.getFrom_wxid(), msg);
                 break;
+            case "EventReceivedTransfer":
         }
         //公共处理逻辑
         if (requestMsg.getType().equals("1")) {
@@ -150,6 +151,11 @@ public class ReceiverController {
                 commonService.sendPicture(wxid, "机器运行中");
             }
         }
+    }
+
+    //处理需要邮件发送的问题
+    public void method3(String msg){
+
     }
 }
 
