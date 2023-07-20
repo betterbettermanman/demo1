@@ -1,6 +1,5 @@
 package com.example.demo1.schedule;
 
-import com.example.demo1.bean.Task;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.TaskService;
 import com.example.demo1.service.WeatherService;
@@ -24,32 +23,47 @@ public class WeatherSchedule {
     //或直接指定时间间隔，例如：5秒
     //@Scheduled(fixedRate=5000)
     private void configureTasks() {
-        commonService.sendInfo("wxid_uyu8cpztrem522", weatherService.getWeather(510182));//菜
-        commonService.sendInfo("wxid_r6t23z9oht5t21", weatherService.getWeather(511400));//猫咪
+        //菜
+        commonService.sendInfo("wxid_uyu8cpztrem522", weatherService.getWeather(510182));
+        //猫咪
+        commonService.sendInfo("wxid_r6t23z9oht5t21", weatherService.getWeather(511400));
 
     }
 
-    //贷款提醒定时任务
+    /**
+     * 贷款提醒定时任务
+     */
     @Scheduled(cron = "0 0 6 28 * ?")
     private void Task3() {
-        commonService.sendInfo("wxid_uyu8cpztrem522", "还贷款拉！！");//菜
-        commonService.sendInfo("wxid_r6t23z9oht5t21", "还贷款拉!!");//猫咪
-    }
-    //添加每周五发送周报提醒
-    @Scheduled(cron="0 0 17 ? * FRI")
-    private void Task4(){
-        commonService.sendInfo("wxid_uyu8cpztrem522", "发周报拉！！");//菜
+        //菜
+        commonService.sendInfo("wxid_uyu8cpztrem522", "还贷款拉！！");
+        //猫咪
+        commonService.sendInfo("wxid_r6t23z9oht5t21", "还贷款拉!!");
     }
 
-    //每天10点提醒软著情况
-    @Scheduled(cron="0 0 10 * * ?")
-    private void Task5(){
+    /**
+     * 添加每周五发送周报提醒
+     */
+    @Scheduled(cron = "0 0 17 ? * FRI")
+    private void Task4() {
+        //菜
+        commonService.sendInfo("wxid_uyu8cpztrem522", "发周报拉！！");
+    }
+
+    /**
+     * 每天10点提醒软著情况
+     */
+    @Scheduled(cron = "0 0 10 * * ?")
+    private void Task5() {
         commonService.sendInfo("24598305711@chatroom", "软著 软著 不要忘记了，22号就要交了");
     }
 
-    //每天7点提醒工作任务计划
-    @Scheduled(cron="0 0 7 * * ?")
-    private void Task6(){
+    /**
+     * 每天7点提醒工作任务计划
+     */
+    @Scheduled(cron = "0 0 7 * * ?")
+    private void Task6() {
         taskService.remindTask();
     }
+
 }

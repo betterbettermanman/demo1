@@ -2,26 +2,47 @@ package com.example.demo1.bean;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+/**
+ * @author Administrator
+ */
 public class ReceiverRequestMsg {
 
-    //事件名称
+    /**
+     * 事件名称
+     */
     private String event;
-    //机器人id
+    /**
+     * 机器人id
+     */
     private String robot_wxid;
     private String to_name;
-    //来源群id/私聊时用户id
+    /**
+     * 来源群id/私聊时用户id
+     */
     private String from_wxid;
-    //来源群名称/私聊时用户昵称
+    /**
+     * 来源群名称/私聊时用户昵称
+     */
     private String from_name;
-    //消息类型
+    /**
+     * 消息类型
+     */
     private String type;
-    //具体发消息的群成员id
+    /**
+     * 具体发消息的群成员id
+     */
     private String final_from_wxid;
-    //具体发消息的群成员昵称
+    /**
+     * 具体发消息的群成员昵称
+     */
     private String final_from_name;
-    //发给谁，往往是机器人自己(也可能别的成员收到消息)
+    /**
+     * 发给谁，往往是机器人自己(也可能别的成员收到消息)
+     */
     private String to_wxid;
-    //消息体(str/json) 不同事件和不同type都不一样，自己去试验吧
+    /**
+     * 消息体(str/json) 不同事件和不同type都不一样，自己去试验吧
+     */
     @JsonDeserialize(using = AAADeserializer.class)
     private String msg;
     private String msgid;

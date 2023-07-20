@@ -29,18 +29,21 @@ public class CommonService {
     public void sendInfo(String wxId, String msg) {
         JSONObject requestMsg = createMsg();
         requestMsg.put("event", "SendTextMsg");
-        requestMsg.put("to_wxid", wxId);//个人id
-        requestMsg.put("msg", msg);//信息
+        //个人id
+        requestMsg.put("to_wxid", wxId);
+        //信息
+        requestMsg.put("msg", msg);
         sendInfo(requestMsg);
     }
 
     /**
      * 发送消息并且@人
+     *
      * @param wxId
      * @param msg
      * @param memberWxid
      */
-    public void sendInfo(String wxId, String msg,String memberWxid) {
+    public void sendInfo(String wxId, String msg, String memberWxid) {
         JSONObject requestMsg = createMsg();
         requestMsg.put("event", "SendGroupMsgAndAt");
         requestMsg.put("group_wxid", wxId);//目标id
@@ -59,11 +62,12 @@ public class CommonService {
     public void sendPicture(String wxId, String picture) {
         JSONObject requestMsg = createMsg();
         requestMsg.put("event", "SendImageMsg");
-        requestMsg.put("to_wxid", wxId);//个人id
+        //个人id
+        requestMsg.put("to_wxid", wxId);
         JSONObject msg = new JSONObject();
-        msg.put("url","http://localhost:8091/getImage");
-        msg.put("name","preview.jpg");
-        requestMsg.put("msg",msg);
+        msg.put("url", "http://localhost:8091/getImage");
+        msg.put("name", "preview.jpg");
+        requestMsg.put("msg", msg);
         sendInfo(requestMsg);
     }
 
@@ -79,9 +83,9 @@ public class CommonService {
         MediaType type = MediaType.parseMediaType("application/json; charset=GBK");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(type);
-        headers.add("Accept","application/json; charset=GBK");
+        headers.add("Accept", "application/json; charset=GBK");
         HttpEntity formEntity = new HttpEntity(msg.toString(), headers);
-        System.out.println("sendMsg:"+formEntity);
+        System.out.println("sendMsg:" + formEntity);
         restTemplate.postForEntity(myAppProperties.getRemoteUrl(), formEntity, String.class);
     }
 
