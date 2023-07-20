@@ -58,6 +58,7 @@ public class WeatherSchedule {
         commonService.sendInfo("24598305711@chatroom", "软著 软著 不要忘记了，22号就要交了");
     }
 
+
     /**
      * 每天7点提醒工作任务计划
      */
@@ -65,5 +66,14 @@ public class WeatherSchedule {
     private void Task6() {
         taskService.remindTask();
     }
+
+    /**
+     * 每天21点提醒第二天天气情况
+     */
+    @Scheduled(cron = "0 0 21 * * ?")
+    private void Task7() {
+        commonService.sendInfo("wxid_r6t23z9oht5t21", weatherService.getWeather2(511400));
+    }
+
 
 }

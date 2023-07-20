@@ -40,9 +40,10 @@ public class SendController {
 
     @GetMapping("getWxid")
     public String getWxid() {
-        commonService.sendInfo("wxid_sbpp4a752raj22", weatherService.getWeather(510182));
+        commonService.sendInfo("wxid_sbpp4a752raj22", weatherService.getWeather2(511400));
         return "";
     }
+
     @Autowired
     private WeatherService weatherService;
 }

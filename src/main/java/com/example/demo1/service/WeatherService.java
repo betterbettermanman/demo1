@@ -21,6 +21,8 @@ public class WeatherService {
     private AppProperties myAppProperties;
 
     /**
+     * 获取实时天气
+     *
      * @param cityCode 城市编码
      */
     public String getWeather(int cityCode) {
@@ -42,6 +44,35 @@ public class WeatherService {
                 builder.append("天气：").append(weather.get("weather")).append("\n");
                 builder.append("温度：").append(weather.get("temperature")).append("\n");
                 builder.append("风向：").append(weather.get("winddirection")).append("/" + weather.get("windpower")).append("\n");
+            }
+        }
+        System.out.println(builder.toString());
+        return builder.toString();
+    }
+
+    /**
+     * 获取预告天气
+     *
+     * @param cityCode
+     * @return
+     */
+    public String getWeather2(int cityCode) {
+        String url = String.format("%s?key=%s&city=%s&extensions=all", myAppProperties.getWeatherUrl(), myAppProperties.getWeatherKey(), cityCode);
+        Map m = restTemplate.getForObject(url, Map.class);
+        StringBuilder builder = new StringBuilder();
+        if ("10000".equals(String.valueOf(m.get("infocode")))) {
+            List lives = (List) m.get("forecasts");
+            if (lives.size() == 1) {
+                Map<String, String> citys = (Map) lives.get(0);
+                List casts = (List) ((Map) lives.get(0)).get("casts");
+                Map<String, String> weather = (Map) casts.get(1);
+                builder.append("地区：").append(citys.get("province") + citys.get("city")).append("\n");
+                /* 时间转换 */
+                builder.append("时间：").append(weather.get("date")).append("\n");
+                builder.append("白天天气：").append(weather.get("dayweather")).append("\n");
+                builder.append("晚上天气：").append(weather.get("nightweather")).append("\n");
+                builder.append("白天温度：").append(weather.get("daytemp")).append("\n");
+                builder.append("晚上温度：").append(weather.get("nighttemp")).append("\n");
             }
         }
         System.out.println(builder.toString());

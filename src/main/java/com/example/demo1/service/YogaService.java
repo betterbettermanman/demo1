@@ -8,6 +8,9 @@ import com.example.demo1.config.WxIdProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Administrator
+ */
 @Service
 public class YogaService {
 
@@ -32,7 +35,7 @@ public class YogaService {
     }
 
 
-    private static String getContent() {
+    private String getContent() {
         int random = NumberUtil.generateRandomNumber(1, 1000, 1)[0];
         if (random % 2 == 0) {
             return "龙仔太帅了！";

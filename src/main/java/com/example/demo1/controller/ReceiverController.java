@@ -2,7 +2,6 @@ package com.example.demo1.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.example.demo1.bean.ReceiverRequestMsg;
 import com.example.demo1.config.AppProperties;
 import com.example.demo1.service.CommonService;
 import com.example.demo1.service.SqlService;
@@ -44,35 +43,36 @@ public class ReceiverController {
      */
     @PostMapping("receiver")
     public void receiver(HttpServletRequest request) throws Exception {
-        ReceiverRequestMsg requestMsg = parseRequest(request);
-        if (requestMsg == null) {
+        JSONObject requestParamJson = parseRequest(request);
+        if (checkRequest(requestParamJson)) {
+            System.out.println("过滤当前消息");
             return;
         }
-        String event = requestMsg.getEvent();
-        String msg = requestMsg.getMsg();
+        String event = requestParamJson.getString("event");
+        String msg = requestParamJson.getString("msg");
+        String fromWxid = requestParamJson.getString("from_wxid");
+        String type = requestParamJson.getString("type");
         switch (event) {
             //群消息(收到)
             case "EventGroupMsg":
                 System.out.println("群消息");
-                yogaService.test(requestMsg.getFrom_wxid(), msg);
+                yogaService.test(fromWxid, msg);
                 break;
             //私聊消息（收到）
             case "EventFriendMsg":
                 System.out.println("私聊消息");
-                method1(requestMsg.getFrom_wxid(), msg);
-                method2(requestMsg.getFrom_wxid(), msg);
+                method1(fromWxid, msg);
+                method2(fromWxid, msg);
                 break;
             case "EventReceivedTransfer":
                 System.out.println("转账事件");
                 break;
-
             case "EventFriendVerify":
                 System.out.println("好友请求事件");
                 break;
             case "EventGroupMemberAdd":
                 System.out.println("群成员增加事件");
                 break;
-
             case "EventGroupMemberDecrease":
                 System.out.println("群成员减少事件");
                 break;
@@ -89,49 +89,17 @@ public class ReceiverController {
                 System.out.println("其他未知事件");
 
         }
-        //公共处理逻辑
-        if (requestMsg.getType().equals("1")) {
-            parseWeather(requestMsg.getFrom_wxid(), msg);
-            createQr(requestMsg.getFrom_wxid(), msg);
-            createSql(requestMsg.getFrom_wxid(), msg);
-            //识别图片二维码
-        } else if (requestMsg.getType().equals("3")) {
-            parseQr(requestMsg.getFrom_wxid(), msg);
-        }
-    }
-
-    /**
-     * 解析微信接受到得消息
-     *
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    private ReceiverRequestMsg parseRequest(HttpServletRequest request) throws IOException {
-
-        BufferedReader reader = request.getReader();
-        String str = "";
-        String result = "";
-        while ((str = reader.readLine()) != null) {
-            result = result + str;
-        }
-        String s = result.replaceAll("\\\\", "\\\\\\\\");
-        if (s.contains(myAppProperties.getRobotId())) {
-            System.out.println("=================");
-            System.out.println(s);
-        } else {
-            return null;
-        }
-        JSONObject jsonObject = JSON.parseObject(s);
-        System.out.println(jsonObject);
-        String type = jsonObject.getString("type");
-        //1/文本消息 3/图片消息 34/语音消息  42/名片消息  43/视频 47/动态表情 48/地理位置  49/分享链接  2000/转账 2001/红包  2002/小程序  2003/群邀请
+        //：1/文本消息 3/图片消息 34/语音消息  42/名片消息  43/视频 47/动态表情 48/地理位置  49/分享链接  2000/转账 2001/红包  2002/小程序  2003/群邀请
         switch (type) {
             case "1":
                 System.out.println("文本消息");
+                queryWeather(fromWxid, msg);
+                createQr(fromWxid, msg);
+                createSql(fromWxid, msg);
                 break;
             case "3":
                 System.out.println("图片消息");
+                parseQr(fromWxid, msg);
                 break;
             case "34":
                 System.out.println("语音消息");
@@ -164,12 +132,47 @@ public class ReceiverController {
                 System.out.println("未知消息类型【" + type + "】");
                 break;
         }
-        // 过滤当前配置账号的消息
-        ReceiverRequestMsg receiverRequestMsg = JSON.parseObject(s, ReceiverRequestMsg.class);
-        if (receiverRequestMsg.getRobot_wxid().equals(myAppProperties.getRobotId())) {
-            return receiverRequestMsg;
+    }
+
+    /**
+     * 解析微信接受到得消息
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    private JSONObject parseRequest(HttpServletRequest request) throws IOException {
+        BufferedReader reader = request.getReader();
+        String str = "";
+        String result = "";
+        while ((str = reader.readLine()) != null) {
+            result = result + str;
         }
-        return null;
+        System.out.println("========requestParam=========");
+        System.out.println(result);
+        return JSON.parseObject(result);
+    }
+
+    /**
+     * 校验消息是否可以被处理，如自己的消息或者其他微信号的消息就不进行处理
+     *
+     * @param requestParam
+     * @return
+     */
+    private boolean checkRequest(JSONObject requestParam) {
+        String robotWxid = requestParam.getString("robot_wxid");
+        String fromWxid = requestParam.getString("from_wxid");
+        String finalFromWxid = requestParam.getString("final_from_wxid");
+        final String robotId = myAppProperties.getRobotId();
+        //群聊发送人不能是自己
+        if (finalFromWxid.equals(robotId)) {
+            return true;
+        }
+        //私聊发送人不能是自己
+        if (fromWxid.equals(robotId)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -214,7 +217,7 @@ public class ReceiverController {
      * @param wxid
      * @param msg
      */
-    public void parseWeather(String wxid, String msg) {
+    public void queryWeather(String wxid, String msg) {
         if (msg.endsWith("天气")) {
             String cityName = msg.substring(0, msg.indexOf("天气"));
             String weather = weatherService.getWeather(cityName);
@@ -247,17 +250,17 @@ public class ReceiverController {
      * @param msg
      */
     public void method1(String wxid, String msg) {
-        if (wxid.equals("wxid_r6t23z9oht5t21") || wxid.equals("wxid_uyu8cpztrem522")) {
-            String[] strings = {"猫咪", "我是猫咪"};
-            if ("我是不是乖猫咪".equals(msg.trim())) {
-                commonService.sendInfo(wxid, "你是乖猫咪");
-                commonService.sendPicture(wxid, "http://localhost:8091/getImage");
-            } else if ("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim())) {
-                commonService.sendInfo(wxid, "我在吃屎");
-            } else if (Arrays.asList(strings).contains(msg)) {
-                commonService.sendPicture(wxid, "http://localhost:8091/getImage");
-            }
+//        if (wxid.equals("wxid_r6t23z9oht5t21") || wxid.equals("wxid_uyu8cpztrem522")) {
+        String[] strings = {"猫咪", "我是猫咪"};
+        if ("我是不是乖猫咪".equals(msg.trim())) {
+            commonService.sendInfo(wxid, "你是乖猫咪");
+            commonService.sendPicture(wxid, "http://localhost:8091/getImage");
+        } else if ("你在爪子".equals(msg.trim()) || "你抓".equals(msg.trim())) {
+            commonService.sendInfo(wxid, "我在吃屎");
+        } else if (Arrays.asList(strings).contains(msg)) {
+            commonService.sendPicture(wxid, "http://localhost:8091/getImage");
         }
+//        }
     }
 
     /**
@@ -267,12 +270,10 @@ public class ReceiverController {
      * @param msg
      */
     public void method2(String wxid, String msg) {
-        if (wxid.equals("wxid_uyu8cpztrem522")) {
-            if ("测试".equals(msg.trim())) {
-                commonService.sendInfo(wxid, "机器运行中");
-            } else if ("测试图片".equals(msg.trim())) {
-                commonService.sendPicture(wxid, "机器运行中");
-            }
+        if ("测试文本".equals(msg.trim())) {
+            commonService.sendInfo(wxid, "机器运行中");
+        } else if ("测试图片".equals(msg.trim())) {
+            commonService.sendPicture(wxid, "机器运行中");
         }
     }
 
